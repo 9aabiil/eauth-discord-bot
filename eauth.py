@@ -349,6 +349,7 @@ async def cmd_userdata(ctx, username: str):
             f"- Duration: {response.get('expire_date', 'N/A')}\n"
             f"- HWID: {response.get('hwid', 'N/A')}"
         )
+        # if you have a custom user variable, simply add it using response.get('varname', 'N/A'). Thank you!
         await ctx.send(embed=create_response_embed("🔍 User Details", details))
     else:
         await ctx.send(embed=create_response_embed("⚠️ Error", response.get('message', 'Unknown error')))
@@ -480,6 +481,81 @@ async def cmd_banid(ctx, identifier: str):
     
     response = await make_api_request(json.dumps(request_data))
     await ctx.send(embed=create_response_embed("🔨 ID Banned", response['message']))
+
+@slash_command(
+    name="resetpassword",
+    description="Reset a user's password",
+    options=[
+        SlashCommandOption(
+            name="username",
+            description="User to change password",
+            type=OptionType.STRING,
+            required=True
+        ),
+        SlashCommandOption(
+            name="newpassword",
+            description="New user password",
+            type=OptionType.STRING,
+            required=True
+        )
+    ],
+)
+async def cmd_resetpassword(ctx, username: str, newpassword: str):
+    if not await verify_user_permissions(ctx):
+        return
+    
+    request_data = {
+        'type': 'resetpassword',
+        'username': username,
+        'newpassword': newpassword,
+        'admin_key': ADMIN_KEY,
+        'discord_user_id': str(ctx.author.id),
+        'pair': random_string()
+    }
+    
+    response = await make_api_request(json.dumps(request_data))
+    await ctx.send(embed=create_response_embed("🔨 Password Modification...", response['message']))
+
+@slash_command(
+    name="editvariable",
+    description="Edit a user's variable value",
+    options=[
+        SlashCommandOption(
+            name="username",
+            description="User to edit its variable",
+            type=OptionType.STRING,
+            required=True
+        ),
+        SlashCommandOption(
+            name="varname",
+            description="Variable name",
+            type=OptionType.STRING,
+            required=True
+        ),
+        SlashCommandOption(
+            name="newvalue",
+            description="New variable value",
+            type=OptionType.STRING,
+            required=False
+        )
+    ],
+)
+async def cmd_editvariable(ctx, username: str, varname: str, newvalue: str = ""):
+    if not await verify_user_permissions(ctx):
+        return
+    
+    request_data = {
+        'type': 'editvariable',
+        'username': username,
+        'varname': varname,
+        'newvalue': newvalue,
+        'admin_key': ADMIN_KEY,
+        'discord_user_id': str(ctx.author.id),
+        'pair': random_string()
+    }
+    
+    response = await make_api_request(json.dumps(request_data))
+    await ctx.send(embed=create_response_embed("🔨 Variable Modification...", response['message']))
 
 
 if __name__ == "__main__":
