@@ -33,7 +33,7 @@ def random_string(length=18):
 
 def create_response_embed(title, description):
     embed = Embed(title=title, description=description)
-    embed.set_footer(text="EAuth Discord License System | eauth.us.to")
+    embed.set_footer(text="Eauth Discord License System | eauth.us.to")
     return embed
 
 async def make_api_request(request_data):
@@ -557,6 +557,39 @@ async def cmd_editvariable(ctx, username: str, varname: str, newvalue: str = "")
     response = await make_api_request(json.dumps(request_data))
     await ctx.send(embed=create_response_embed("🔨 Variable Modification...", response['message']))
 
+@slash_command(
+    name="adjustsub",
+    description="Extend or reduce a user's subscription",
+    options=[
+        SlashCommandOption(
+            name="username",
+            description="User to adjust subscription for",
+            type=OptionType.STRING,
+            required=True
+        ),
+        SlashCommandOption(
+            name="duration",
+            description="Use signs like +1 week or -2 days",
+            type=OptionType.STRING,
+            required=True
+        )
+    ],
+)
+async def cmd_adjustsub(ctx, username: str, duration: str):
+    if not await verify_user_permissions(ctx):
+        return
+    
+    request_data = {
+        'type': 'adjustsub',
+        'username': username,
+        'adjustment': duration,
+        'admin_key': ADMIN_KEY,
+        'discord_user_id': str(ctx.author.id),
+        'pair': random_string()
+    }
+    
+    response = await make_api_request(json.dumps(request_data))
+    await ctx.send(embed=create_response_embed("🔨 Adjusting Subscription...", response['message']))
 
 if __name__ == "__main__":
     bot.start()
