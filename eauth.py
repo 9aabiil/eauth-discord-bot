@@ -233,6 +233,7 @@ async def cmd_keydata(ctx, key: str):
             f"- Duration: {response.get('expire_date', 'N/A')}\n"
             f"- Create Date: {response.get('create_date', 'N/A')}\n"
             f"- Used: {response.get('used', 'N/A')}\n"
+            f"- Used by: {response.get('used_by', 'N/A')}\n"
             f"- Used date: {response.get('used_date', 'N/A')}"
         )
         await ctx.send(embed=create_response_embed("🔍 Key Details", details))
